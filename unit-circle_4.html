@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mr Genç ❤ Unit Circle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #F5F0E4;
+    --bg-soft:     #F9F5EC;
+    --paper:       #FCFAF4;
+    --ink:         #1A1F36;
+    --ink-soft:    #4A5168;
+    --ink-faint:   #9097A8;
+    --rule:        #D5CDB8;
+    --rule-soft:   #E5DFCF;
+
+    /* Family colors — used only on the SVG (radial lines + dots) */
+    --fam-red:    #BC2C3D;
+    --fam-blue:   #244D80;
+    --fam-axis:   #1A1F36;
+
+    /* Type colors — used on cards */
+    --deg-bg:     #E8D5A6;
+    --deg-bd:     #9E8243;
+    --deg-fg:     #56441A;
+    --rad-bg:     #C7DBED;
+    --rad-bd:     #2D5B96;
+    --rad-fg:     #1A3D6A;
+    --trig-bg:    #ECCBCF;
+    --trig-bd:    #B73A45;
+    --trig-fg:    #771E27;
+
+    --green:      #2A6E4E;
+    --green-soft: #D5E4DA;
+    --red-soft:   #F4DDE0;
+
+    --shadow-sm:  0 1px 2px rgba(26,31,54,.06), 0 2px 6px rgba(26,31,54,.05);
+    --shadow-md:  0 4px 12px rgba(26,31,54,.12), 0 8px 22px rgba(26,31,54,.08);
+    --shadow-lg:  0 14px 36px rgba(26,31,54,.18), 0 4px 12px rgba(26,31,54,.10);
+
+    --r-sm: 4px;
+    --r-md: 8px;
+    --r-lg: 14px;
+
+    --font-display: 'Fraunces', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    --font-body:    'Inter Tight', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body);
+    color: var(--ink);
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 18% 20%, rgba(188,44,61,.04), transparent 40%),
+      radial-gradient(circle at 82% 80%, rgba(36,77,128,.04), transparent 40%);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body { overflow-x: auto; }
+
+  .page {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 28px 24px 56px;
+    container-type: inline-size;
+  }
+
+  /* ───── Header ───── */
+  .header { text-align: center; margin-bottom: 22px; }
+  .title {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(30px, 4.6cqw, 50px);
+    letter-spacing: -0.02em;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    line-height: 1.1;
+  }
+  .title-em { font-weight: 700; }
+  .heart {
+    width: 0.78em;
+    height: 0.78em;
+    color: var(--fam-red);
+    flex-shrink: 0;
+    animation: heartbeat 1.5s ease-in-out infinite;
+    transform-origin: center;
+    filter: drop-shadow(0 1px 1px rgba(188,44,61,.2));
+  }
+  @keyframes heartbeat {
+    0%, 60%, 100% { transform: scale(1); }
+    8%  { transform: scale(1.18); }
+    16% { transform: scale(0.96); }
+    24% { transform: scale(1.12); }
+    34% { transform: scale(1); }
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 8px 0 0;
+    letter-spacing: 0.01em;
+  }
+  .subtitle .accent {
+    color: var(--fam-red);
+    font-weight: 600;
+    font-family: var(--font-display);
+    font-size: 1.08em;
+  }
+  .rule-bar {
+    width: 60px;
+    height: 1px;
+    background: var(--rule);
+    margin: 12px auto 0;
+  }
+
+  /* ───── Dashboard ───── */
+  .dashboard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 18px auto 22px;
+    padding: 12px 20px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-sm);
+    max-width: 760px;
+    flex-wrap: wrap;
+  }
+  .stats { display: flex; gap: 26px; }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1;
+  }
+  .stat-num {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 26px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-top: 5px;
+    font-weight: 500;
+  }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: var(--r-md);
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all .16s ease;
+    letter-spacing: 0.01em;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-primary:hover {
+    background: var(--fam-red);
+    border-color: var(--fam-red);
+  }
+  .btn-ghost {
+    border-color: var(--rule);
+    color: var(--ink-soft);
+  }
+  .btn-ghost:hover {
+    background: var(--rule);
+    color: var(--ink);
+    border-color: var(--rule);
+  }
+
+  /* ───── Game grid: pool | circle | pool ───── */
+  .game-grid {
+    display: grid;
+    grid-template-columns: minmax(170px, 200px) minmax(0, 1fr) minmax(170px, 200px);
+    gap: 18px;
+    align-items: start;
+    margin-top: 8px;
+  }
+
+  /* ───── Circle area ───── */
+  .circle-area {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 1;
+    margin: 0 auto;
+    justify-self: center;
+  }
+  .bg-svg { width: 100%; height: 100%; display: block; }
+  .slots-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* ───── Pools (sticky, beside the circle) ───── */
+  .pool {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-lg);
+    padding: 12px;
+    min-height: 380px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+    justify-content: center;
+    box-shadow: inset 0 2px 6px rgba(26,31,54,.04);
+    position: sticky;
+    top: 12px;
+    max-height: calc(100vh - 28px);
+    overflow-y: auto;
+  }
+  .pool::-webkit-scrollbar { width: 6px; }
+  .pool::-webkit-scrollbar-track { background: transparent; }
+  .pool::-webkit-scrollbar-thumb {
+    background: var(--rule);
+    border-radius: 3px;
+  }
+
+  /* On narrower viewports, fall back to a single pool below the circle */
+  @media (max-width: 1099px) {
+    .game-grid {
+      grid-template-columns: 1fr;
+    }
+    .pool {
+      position: static;
+      max-height: none;
+      min-height: 200px;
+      margin-top: 12px;
+    }
+    #poolRight { display: none; }
+  }
+
+  /* ───── Slots (top-level, absolutely positioned) ───── */
+  .slot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--r-md);
+    border: 1.5px dashed var(--rule);
+    background: rgba(252, 250, 244, 0.88);
+    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    pointer-events: auto;
+    touch-action: manipulation;
+  }
+  .slot.hover,
+  body.has-selection .slot:not(:has(.card.locked)):hover {
+    border-color: var(--ink);
+    border-style: solid;
+    background: var(--paper);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+  }
+  .slot.correct {
+    border-color: var(--green);
+    border-style: solid;
+    background: var(--green-soft);
+  }
+  .slot.incorrect {
+    animation: shake 0.45s ease;
+    border-color: var(--fam-red);
+    border-style: solid;
+    background: var(--red-soft);
+  }
+  @keyframes shake {
+    0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+    20% { transform: translate(-50%, -50%) translateX(-5px); }
+    40% { transform: translate(-50%, -50%) translateX(5px); }
+    60% { transform: translate(-50%, -50%) translateX(-3px); }
+    80% { transform: translate(-50%, -50%) translateX(3px); }
+  }
+
+  .slot-deg {
+    width: 4.4cqw;
+    min-width: 40px;
+    height: 3.2cqw;
+    min-height: 30px;
+  }
+  .slot-rad {
+    width: 2.9cqw;
+    min-width: 32px;
+    height: 3.6cqw;
+    min-height: 36px;
+  }
+
+  /* ───── Coord container (parens + 2 sub-slots) ───── */
+  .coord-container {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.18em;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(15px, 1.9cqw, 22px);
+    color: var(--trig-fg);
+    pointer-events: auto;
+    padding: 0.15em 0.25em;
+    background: rgba(252, 250, 244, 0.7);
+    border-radius: var(--r-md);
+    line-height: 1;
+  }
+  .coord-container .paren,
+  .coord-container .comma {
+    color: var(--trig-fg);
+    flex-shrink: 0;
+  }
+
+  /* Sub-slots inside coord container — override .slot's absolute positioning */
+  .coord-container .slot {
+    position: static;
+    transform: none;
+    width: 3.6cqw;
+    min-width: 36px;
+    height: 4.2cqw;
+    min-height: 42px;
+    background: rgba(252, 250, 244, 0.92);
+  }
+  .coord-container .slot.incorrect {
+    animation: shake-static 0.45s ease;
+  }
+  @keyframes shake-static {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+  }
+
+  .slot-placeholder {
+    color: var(--ink-faint);
+    font-size: clamp(8px, 0.95cqw, 11px);
+    font-family: var(--font-display);
+    letter-spacing: 0.06em;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.6;
+    line-height: 1;
+  }
+  .slot:has(.card) .slot-placeholder { display: none; }
+
+  /* ───── Cards ───── */
+  .card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--r-md);
+    font-family: var(--font-display);
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    box-shadow: var(--shadow-sm);
+    border: 1.5px solid;
+    transform: rotate(var(--tilt, 0deg));
+    transition: transform .18s ease, box-shadow .18s ease;
+    position: relative;
+    padding: 2px 6px;
+    line-height: 1;
+  }
+  .card:hover { box-shadow: var(--shadow-md); }
+
+  /* Selected state — pulled out and outlined */
+  .card.selected {
+    transform: scale(1.08) translateY(-2px) !important;
+    box-shadow: 0 0 0 3px var(--ink), 0 10px 24px rgba(26,31,54,.22);
+    z-index: 100;
+    animation: float-select 1.8s ease-in-out infinite;
+  }
+  @keyframes float-select {
+    0%, 100% { box-shadow: 0 0 0 3px var(--ink), 0 10px 24px rgba(26,31,54,.22); }
+    50%      { box-shadow: 0 0 0 3px var(--ink), 0 14px 32px rgba(26,31,54,.30); }
+  }
+
+  /* Sizes per type */
+  .card[data-type="deg"] {
+    width: 4.3cqw;
+    min-width: 38px;
+    height: 3.0cqw;
+    min-height: 28px;
+    font-size: clamp(11px, 1.4cqw, 16px);
+  }
+  .card[data-type="rad"] {
+    width: 2.7cqw;
+    min-width: 30px;
+    height: 3.4cqw;
+    min-height: 34px;
+    font-size: clamp(9px, 1.1cqw, 13px);
+  }
+  .card[data-type="cos"],
+  .card[data-type="sin"] {
+    width: 3.4cqw;
+    min-width: 34px;
+    height: 4.0cqw;
+    min-height: 40px;
+    font-size: clamp(10px, 1.22cqw, 14px);
+  }
+
+  /* Type colors */
+  .card[data-type="deg"] { background: var(--deg-bg);  border-color: var(--deg-bd);  color: var(--deg-fg);  }
+  .card[data-type="rad"] { background: var(--rad-bg);  border-color: var(--rad-bd);  color: var(--rad-fg);  }
+  .card[data-type="cos"],
+  .card[data-type="sin"] {
+    background: var(--trig-bg);
+    border-color: var(--trig-bd);
+    color: var(--trig-fg);
+  }
+
+  .slot .card { --tilt: 0deg; }
+
+  .card.locked { cursor: not-allowed; }
+  .card.locked::after {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    width: 17px;
+    height: 17px;
+    background: var(--green);
+    border-radius: 50%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3.5 8.2 L6.5 11 L12.5 5' stroke='white' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-size: 13px;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 1px 3px rgba(42,110,78,.4);
+  }
+
+  /* Fractions */
+  .frac {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    vertical-align: middle;
+    line-height: 1;
+    margin: 0 0.04em;
+  }
+  .frac .num {
+    padding: 0 0.16em 1px;
+    border-bottom: 1.2px solid currentColor;
+  }
+  .frac .den { padding: 1px 0.16em 0; }
+  .card-content {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  /* ───── Celebration ───── */
+  .celebration[hidden] { display: none !important; }
+  .celebration {
+    position: fixed;
+    inset: 0;
+    background: rgba(245,240,228,.94);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn .35s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+  .celebration-card {
+    background: var(--paper);
+    padding: 44px 52px;
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    max-width: 420px;
+    border-top: 4px solid var(--fam-red);
+    position: relative;
+  }
+  .celebration-card .big-heart {
+    width: 48px;
+    height: 48px;
+    color: var(--fam-red);
+    margin-bottom: 8px;
+    animation: heartbeat 1.4s ease-in-out infinite;
+  }
+  .celebration-card h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 38px;
+    color: var(--ink);
+    margin: 4px 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .celebration-card p {
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin: 0 0 24px;
+    line-height: 1.5;
+  }
+  .celebration-stats {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 24px;
+    padding: 14px 0;
+    border-top: 1px solid var(--rule-soft);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .celebration-stats .stat { align-items: center; }
+  .celebration-stats .stat-num { font-size: 22px; }
+
+  /* ───── Footer ───── */
+  .footer {
+    text-align: center;
+    margin-top: 30px;
+    color: var(--ink-faint);
+    font-size: 12px;
+    font-family: var(--font-display);
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 700px) {
+    .page { padding: 18px 12px 40px; }
+    .dashboard { padding: 10px 14px; }
+    .stats { gap: 18px; }
+    .stat-num { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+
+    <header class="header">
+      <h1 class="title">
+        <span>Mr Genç</span>
+        <svg class="heart" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <span class="title-em">Unit Circle</span>
+      </h1>
+      <p class="subtitle">Tap a card, then tap a slot to place it. Hit <span class="accent">Check</span> when you're ready.</p>
+      <div class="rule-bar"></div>
+    </header>
+
+    <main>
+      <div class="dashboard">
+        <div class="stats">
+          <div class="stat"><span class="stat-num" id="placedCount">0/66</span><span class="stat-label">placed</span></div>
+          <div class="stat"><span class="stat-num" id="correctCount">—</span><span class="stat-label">correct</span></div>
+          <div class="stat"><span class="stat-num" id="attemptsCount">0</span><span class="stat-label">attempts</span></div>
+        </div>
+        <div class="controls">
+          <button class="btn btn-primary" id="checkBtn">Check answers</button>
+          <button class="btn btn-ghost" id="resetBtn">Start over</button>
+        </div>
+      </div>
+
+      <div class="game-grid">
+        <div class="pool" id="poolLeft" aria-label="Card pile (left)"></div>
+
+        <div class="circle-area" id="circleArea">
+          <svg viewBox="0 0 1000 1000" class="bg-svg" id="bgSvg" aria-hidden="true"></svg>
+          <div class="slots-layer" id="slotsLayer"></div>
+        </div>
+
+        <div class="pool" id="poolRight" aria-label="Card pile (right)"></div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>For my students at CIS · Mr. Genç</p>
+    </footer>
+  </div>
+
+  <div class="celebration" id="celebration" hidden>
+    <div class="celebration-card">
+      <svg class="big-heart" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+      <h2>All correct!</h2>
+      <p>Beautifully done. The unit circle is yours.</p>
+      <div class="celebration-stats">
+        <div class="stat"><span class="stat-num" id="finalAttempts">—</span><span class="stat-label">attempts</span></div>
+        <div class="stat"><span class="stat-num" id="finalTime">—</span><span class="stat-label">time</span></div>
+      </div>
+      <button class="btn btn-primary" id="celebrateAgain">Try again</button>
+    </div>
+  </div>
+
+<script>
+'use strict';
+
+/* ───────── Data: 17 angles ─────────
+   • slotAngle: angular offset for deg/rad slots (lets 0° and 360° share a dot
+     by fanning above/below the x-axis)
+   • coordSlotAngle: angular offset for the coord container (single (1,0)
+     container sits right on the x-axis between 0° and 360°)
+   • skipCoord: 360° shares (1,0) with 0°, so no second coord container */
+const ANGLES = [
+  { deg: 0,   slotAngle:  10, coordSlotAngle: 0, r_num: '0',   r_den: null, c_num: '1',   c_den: null, s_num: '0',   s_den: null, family: 'axis'   },
+  { deg: 30,                  r_num: 'π',   r_den: '6',  c_num: '√3',  c_den: '2',  s_num: '1',   s_den: '2',  family: 'pi6pi3' },
+  { deg: 45,                  r_num: 'π',   r_den: '4',  c_num: '√2',  c_den: '2',  s_num: '√2',  s_den: '2',  family: 'pi4'    },
+  { deg: 60,                  r_num: 'π',   r_den: '3',  c_num: '1',   c_den: '2',  s_num: '√3',  s_den: '2',  family: 'pi6pi3' },
+  { deg: 90,                  r_num: 'π',   r_den: '2',  c_num: '0',   c_den: null, s_num: '1',   s_den: null, family: 'axis'   },
+  { deg: 120,                 r_num: '2π',  r_den: '3',  c_num: '−1',  c_den: '2',  s_num: '√3',  s_den: '2',  family: 'pi6pi3' },
+  { deg: 135,                 r_num: '3π',  r_den: '4',  c_num: '−√2', c_den: '2',  s_num: '√2',  s_den: '2',  family: 'pi4'    },
+  { deg: 150,                 r_num: '5π',  r_den: '6',  c_num: '−√3', c_den: '2',  s_num: '1',   s_den: '2',  family: 'pi6pi3' },
+  { deg: 180,                 r_num: 'π',   r_den: null, c_num: '−1',  c_den: null, s_num: '0',   s_den: null, family: 'axis'   },
+  { deg: 210,                 r_num: '7π',  r_den: '6',  c_num: '−√3', c_den: '2',  s_num: '−1',  s_den: '2',  family: 'pi6pi3' },
+  { deg: 225,                 r_num: '5π',  r_den: '4',  c_num: '−√2', c_den: '2',  s_num: '−√2', s_den: '2',  family: 'pi4'    },
+  { deg: 240,                 r_num: '4π',  r_den: '3',  c_num: '−1',  c_den: '2',  s_num: '−√3', s_den: '2',  family: 'pi6pi3' },
+  { deg: 270,                 r_num: '3π',  r_den: '2',  c_num: '0',   c_den: null, s_num: '−1',  s_den: null, family: 'axis'   },
+  { deg: 300,                 r_num: '5π',  r_den: '3',  c_num: '1',   c_den: '2',  s_num: '−√3', s_den: '2',  family: 'pi6pi3' },
+  { deg: 315,                 r_num: '7π',  r_den: '4',  c_num: '√2',  c_den: '2',  s_num: '−√2', s_den: '2',  family: 'pi4'    },
+  { deg: 330,                 r_num: '11π', r_den: '6',  c_num: '√3',  c_den: '2',  s_num: '−1',  s_den: '2',  family: 'pi6pi3' },
+  { deg: 360, slotAngle: -10, skipCoord: true, r_num: '2π', r_den: null, c_num: '1', c_den: null, s_num: '0', s_den: null, family: 'axis' },
+];
+
+const TYPES = ['deg', 'rad', 'cos', 'sin'];
+
+/* 17 deg + 17 rad + 16 × (cos + sin) = 66 */
+const TOTAL_CARDS = (() => {
+  let n = 0;
+  for (const ang of ANGLES) {
+    n += 2;                          // deg + rad
+    if (!ang.skipCoord) n += 2;      // cos + sin
+  }
+  return n;
+})();
+
+/* Radii in 1000-unit SVG space */
+const R = {
+  circle: 240,
+  rad:    140,   // close to centre
+  deg:    215,   // near the rim, still inside
+  coord:  385,   // outside the circle
+};
+
+const FAMILY_COLOR = {
+  pi4:    '#BC2C3D',
+  pi6pi3: '#244D80',
+  axis:   '#1A1F36',
+};
+
+/* ───────── Value strings (used both for display and matching) ───────── */
+function rawValue(ang, type) {
+  switch (type) {
+    case 'deg': return `${ang.deg}°`;
+    case 'rad': return ang.r_den ? `${ang.r_num}/${ang.r_den}` : ang.r_num;
+    case 'cos': return ang.c_den ? `${ang.c_num}/${ang.c_den}` : ang.c_num;
+    case 'sin': return ang.s_den ? `${ang.s_num}/${ang.s_den}` : ang.s_num;
+  }
+}
+
+function renderHTMLValue(num, den) {
+  if (den === null || den === undefined) return num;
+  return `<span class="frac"><span class="num">${num}</span><span class="den">${den}</span></span>`;
+}
+function renderHTMLFor(ang, type) {
+  switch (type) {
+    case 'deg': return `${ang.deg}°`;
+    case 'rad': return renderHTMLValue(ang.r_num, ang.r_den);
+    case 'cos': return renderHTMLValue(ang.c_num, ang.c_den);
+    case 'sin': return renderHTMLValue(ang.s_num, ang.s_den);
+  }
+}
+
+/* Category for matching: cos and sin are interchangeable by value */
+function categoryOf(type) {
+  return (type === 'cos' || type === 'sin') ? 'trig' : type;
+}
+
+/* ───────── SVG ───────── */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function svgEl(name, attrs = {}) {
+  const el = document.createElementNS(SVG_NS, name);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+function buildSvg() {
+  const svg = document.getElementById('bgSvg');
+  svg.innerHTML = '';
+  const cx = 500, cy = 500;
+
+  const defs = svgEl('defs');
+  defs.innerHTML = `
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1.5 L9,5 L0,8.5 Z" fill="#1A1F36" />
+    </marker>
+  `;
+  svg.appendChild(defs);
+
+  const axisInset = 50;
+  svg.appendChild(svgEl('line', {
+    x1: axisInset, y1: cy, x2: 1000 - axisInset, y2: cy,
+    stroke: '#1A1F36', 'stroke-width': 1.5, 'stroke-linecap': 'round',
+    'marker-end': 'url(#arrowhead)', 'marker-start': 'url(#arrowhead)',
+  }));
+  svg.appendChild(svgEl('line', {
+    x1: cx, y1: axisInset, x2: cx, y2: 1000 - axisInset,
+    stroke: '#1A1F36', 'stroke-width': 1.5, 'stroke-linecap': 'round',
+    'marker-end': 'url(#arrowhead)', 'marker-start': 'url(#arrowhead)',
+  }));
+
+  const xLabel = svgEl('text', {
+    x: 1000 - axisInset + 4, y: cy - 14, 'text-anchor': 'start',
+    'font-family': 'Fraunces, Georgia, serif',
+    'font-size': 28, fill: '#1A1F36',
+  });
+  xLabel.textContent = 'x';
+  svg.appendChild(xLabel);
+
+  const yLabel = svgEl('text', {
+    x: cx + 14, y: axisInset - 4, 'text-anchor': 'start',
+    'font-family': 'Fraunces, Georgia, serif',
+    'font-size': 28, fill: '#1A1F36',
+  });
+  yLabel.textContent = 'y';
+  svg.appendChild(yLabel);
+
+  // Unit circle
+  svg.appendChild(svgEl('circle', {
+    cx, cy, r: R.circle,
+    fill: 'rgba(252,250,244,0.35)', stroke: '#1A1F36', 'stroke-width': 2,
+  }));
+
+  // Radial lines (non-axis only)
+  for (const ang of ANGLES) {
+    if (ang.family === 'axis') continue;
+    const θ = ang.deg * Math.PI / 180;
+    svg.appendChild(svgEl('line', {
+      x1: cx, y1: cy,
+      x2: cx + R.circle * Math.cos(θ),
+      y2: cy - R.circle * Math.sin(θ),
+      stroke: FAMILY_COLOR[ang.family],
+      'stroke-width': 2, 'stroke-linecap': 'round',
+    }));
+  }
+
+  // Dots (dedupe 0° and 360° — they share the same point)
+  const drawn = new Set();
+  for (const ang of ANGLES) {
+    const key = ((ang.deg % 360) + 360) % 360;
+    if (drawn.has(key)) continue;
+    drawn.add(key);
+    const θ = key * Math.PI / 180;
+    svg.appendChild(svgEl('circle', {
+      cx: cx + R.circle * Math.cos(θ),
+      cy: cy - R.circle * Math.sin(θ),
+      r: 7,
+      fill: FAMILY_COLOR[ang.family],
+    }));
+  }
+}
+
+/* ───────── Slots ───────── */
+const PLACEHOLDER = { deg: '°', rad: 'rad', cos: 'cos', sin: 'sin' };
+
+function makeSlot(ang, type) {
+  const slot = document.createElement('div');
+  slot.className = `slot slot-${type}`;
+  slot.dataset.angle = ang.deg;
+  slot.dataset.type = type;
+  slot.dataset.value = rawValue(ang, type);
+
+  const ph = document.createElement('div');
+  ph.className = 'slot-placeholder';
+  ph.textContent = PLACEHOLDER[type];
+  slot.appendChild(ph);
+
+  attachSlotClick(slot);
+  return slot;
+}
+
+function buildSlots() {
+  const layer = document.getElementById('slotsLayer');
+  layer.innerHTML = '';
+
+  for (const ang of ANGLES) {
+    const slotAng = ang.slotAngle ?? ang.deg;
+    const θ = slotAng * Math.PI / 180;
+
+    // Degree slot (inside circle, near the rim)
+    {
+      const r = R.deg;
+      const slot = makeSlot(ang, 'deg');
+      slot.style.left = `${50 + (r / 1000 * 100) * Math.cos(θ)}%`;
+      slot.style.top  = `${50 - (r / 1000 * 100) * Math.sin(θ)}%`;
+      layer.appendChild(slot);
+    }
+
+    // Radian slot (inside circle, close to centre)
+    {
+      const r = R.rad;
+      const slot = makeSlot(ang, 'rad');
+      slot.style.left = `${50 + (r / 1000 * 100) * Math.cos(θ)}%`;
+      slot.style.top  = `${50 - (r / 1000 * 100) * Math.sin(θ)}%`;
+      layer.appendChild(slot);
+    }
+
+    // Coord container — skipped for angles that share a point with another
+    if (!ang.skipCoord) {
+      const coordAng = ang.coordSlotAngle ?? ang.slotAngle ?? ang.deg;
+      const φ = coordAng * Math.PI / 180;
+      const r = R.coord;
+      const container = document.createElement('div');
+      container.className = 'coord-container';
+      container.style.left = `${50 + (r / 1000 * 100) * Math.cos(φ)}%`;
+      container.style.top  = `${50 - (r / 1000 * 100) * Math.sin(φ)}%`;
+
+      const lparen = document.createElement('span');
+      lparen.className = 'paren';
+      lparen.textContent = '(';
+      container.appendChild(lparen);
+
+      container.appendChild(makeSlot(ang, 'cos'));
+
+      const comma = document.createElement('span');
+      comma.className = 'comma';
+      comma.textContent = ',';
+      container.appendChild(comma);
+
+      container.appendChild(makeSlot(ang, 'sin'));
+
+      const rparen = document.createElement('span');
+      rparen.className = 'paren';
+      rparen.textContent = ')';
+      container.appendChild(rparen);
+
+      layer.appendChild(container);
+    }
+  }
+}
+
+/* ───────── Cards ───────── */
+function buildCardData() {
+  const cards = [];
+  for (const ang of ANGLES) {
+    for (const type of TYPES) {
+      // Skip cos/sin for angles whose coord container was skipped
+      if (ang.skipCoord && (type === 'cos' || type === 'sin')) continue;
+      cards.push({
+        type,
+        angle: ang.deg,
+        value: rawValue(ang, type),
+        html:  renderHTMLFor(ang, type),
+      });
+    }
+  }
+  return cards;
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function randomTilt() {
+  return `${(Math.random() - 0.5) * 8}deg`;
+}
+
+function makeCardElement(data) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.type = data.type;
+  card.dataset.angle = data.angle;
+  card.dataset.value = data.value;
+  card.style.setProperty('--tilt', randomTilt());
+
+  const content = document.createElement('span');
+  content.className = 'card-content';
+  content.innerHTML = data.html;
+  card.appendChild(content);
+
+  attachCardClick(card);
+  return card;
+}
+
+/* ───────── Pools (one or two depending on viewport) ───────── */
+function getAllPools() {
+  return Array.from(document.querySelectorAll('.pool'));
+}
+function getActivePools() {
+  return getAllPools().filter(p => p.offsetParent !== null);
+}
+
+function returnToPool(card) {
+  const pools = getActivePools();
+  const target = pools.length === 0
+    ? document.getElementById('poolLeft')
+    : pools.reduce((min, p) => p.children.length < min.children.length ? p : min, pools[0]);
+  card.style.setProperty('--tilt', randomTilt());
+  card.classList.remove('locked');
+  target.appendChild(card);
+}
+
+function isInPool(card) {
+  return card.parentElement && card.parentElement.classList.contains('pool');
+}
+
+function rebalancePools() {
+  const all = getAllPools();
+  const active = getActivePools();
+  if (active.length === 0) return;
+
+  // First move every card from a hidden pool into the first active pool
+  for (const p of all) {
+    if (active.includes(p)) continue;
+    while (p.firstElementChild) active[0].appendChild(p.firstElementChild);
+  }
+
+  // Then even things out between active pools
+  if (active.length > 1) {
+    let safety = 200;
+    while (safety-- > 0) {
+      const counts = active.map(p => p.children.length);
+      const maxIdx = counts.indexOf(Math.max(...counts));
+      const minIdx = counts.indexOf(Math.min(...counts));
+      if (counts[maxIdx] - counts[minIdx] <= 1) break;
+      active[minIdx].appendChild(active[maxIdx].lastElementChild);
+    }
+  }
+}
+
+/* ───────── Click-to-select interaction ───────── */
+let selectedCard = null;
+
+function selectCard(card) {
+  if (selectedCard === card) {
+    deselectCard();
+    return;
+  }
+  if (selectedCard) selectedCard.classList.remove('selected');
+  selectedCard = card;
+  card.classList.add('selected');
+  document.body.classList.add('has-selection');
+}
+
+function deselectCard() {
+  if (selectedCard) {
+    selectedCard.classList.remove('selected');
+    selectedCard = null;
+  }
+  document.body.classList.remove('has-selection');
+}
+
+function attachCardClick(card) {
+  card.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (card.classList.contains('locked')) return;
+    selectCard(card);
+  });
+}
+
+function placeInSlot(card, slot) {
+  const existing = slot.querySelector('.card');
+  if (existing && existing !== card) returnToPool(existing);
+  slot.classList.remove('correct', 'incorrect');
+  slot.appendChild(card);
+  card.style.setProperty('--tilt', '0deg');
+  deselectCard();
+  updateProgress();
+}
+
+function attachSlotClick(slot) {
+  slot.addEventListener('click', (e) => {
+    if (e.target.closest('.card')) return;
+    e.stopPropagation();
+    if (!selectedCard) return;
+    if (slot.querySelector('.card.locked')) return;
+    placeInSlot(selectedCard, slot);
+  });
+}
+
+function attachPoolClicks() {
+  document.querySelectorAll('.pool').forEach(pool => {
+    pool.addEventListener('click', (e) => {
+      if (e.target.closest('.card')) return;
+      if (!selectedCard) return;
+      if (!isInPool(selectedCard)) {
+        returnToPool(selectedCard);
+        updateProgress();
+      }
+      deselectCard();
+    });
+  });
+}
+
+/* ───────── Stats ───────── */
+let attempts = 0;
+let startTime = Date.now();
+
+function updateProgress() {
+  const placed = document.querySelectorAll('.slot .card').length;
+  document.getElementById('placedCount').textContent = `${placed}/${TOTAL_CARDS}`;
+}
+
+function formatTime(ms) {
+  const s = Math.round(ms / 1000);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${m}:${String(r).padStart(2, '0')}`;
+}
+
+/* ───────── Check ───────── */
+function checkAnswers() {
+  const slots = document.querySelectorAll('.slot');
+  let correct = 0;
+  const wrong = [];
+
+  slots.forEach(slot => {
+    if (!slot.classList.contains('correct')) slot.classList.remove('incorrect');
+    const card = slot.querySelector('.card');
+    if (!card) return;
+
+    const matches = categoryOf(card.dataset.type) === categoryOf(slot.dataset.type) &&
+                    card.dataset.value === slot.dataset.value;
+
+    if (matches) {
+      correct++;
+      slot.classList.add('correct');
+      card.classList.add('locked');
+    } else {
+      wrong.push({ slot, card });
+    }
+  });
+
+  attempts++;
+  document.getElementById('attemptsCount').textContent = attempts;
+  document.getElementById('correctCount').textContent = `${correct}/${TOTAL_CARDS}`;
+
+  wrong.forEach(({ slot, card }, idx) => {
+    slot.classList.add('incorrect');
+    setTimeout(() => {
+      slot.classList.remove('incorrect');
+      returnToPool(card);
+      updateProgress();
+    }, 550 + idx * 25);
+  });
+
+  if (correct === TOTAL_CARDS) {
+    setTimeout(() => {
+      document.getElementById('finalAttempts').textContent = attempts;
+      document.getElementById('finalTime').textContent = formatTime(Date.now() - startTime);
+      document.getElementById('celebration').hidden = false;
+    }, 400);
+  }
+}
+
+/* ───────── Reset ───────── */
+function populateCards() {
+  getAllPools().forEach(p => p.innerHTML = '');
+  const pools = getActivePools();
+  const targets = pools.length > 0 ? pools : [document.getElementById('poolLeft')];
+  const data = shuffle(buildCardData());
+  data.forEach((cd, i) => {
+    targets[i % targets.length].appendChild(makeCardElement(cd));
+  });
+  updateProgress();
+}
+
+function startOver() {
+  attempts = 0;
+  startTime = Date.now();
+  document.getElementById('attemptsCount').textContent = '0';
+  document.getElementById('correctCount').textContent = '—';
+  document.getElementById('celebration').hidden = true;
+  deselectCard();
+
+  document.querySelectorAll('.slot').forEach(s => {
+    s.classList.remove('correct', 'incorrect');
+    const c = s.querySelector('.card');
+    if (c) c.remove();
+  });
+  getAllPools().forEach(p => p.innerHTML = '');
+  populateCards();
+}
+
+/* ───────── Init ───────── */
+function init() {
+  buildSvg();
+  buildSlots();
+  attachPoolClicks();
+  populateCards();
+  startTime = Date.now();
+
+  document.getElementById('checkBtn').addEventListener('click', checkAnswers);
+  document.getElementById('resetBtn').addEventListener('click', startOver);
+  document.getElementById('celebrateAgain').addEventListener('click', startOver);
+
+  document.getElementById('celebration').addEventListener('click', (e) => {
+    if (e.target.id === 'celebration') {
+      document.getElementById('celebration').hidden = true;
+    }
+  });
+
+  // Reflow cards if the layout switches between one and two pools
+  let lastTwoPools = getActivePools().length > 1;
+  window.addEventListener('resize', () => {
+    const now = getActivePools().length > 1;
+    if (now !== lastTwoPools) {
+      lastTwoPools = now;
+      rebalancePools();
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>
