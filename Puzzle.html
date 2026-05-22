@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bir Kelime Bir İşlem</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,400&family=Inconsolata:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0e0c1a;
+      --panel: #161328;
+      --border: #262040;
+      --red: #c8302e;
+      --red-dark: #8a1f1e;
+      --gold: #f2b731;
+      --gold-dark: #c07a18;
+      --amber: #e07030;
+      --teal: #3ed6c0;
+      --white: #f0ece0;
+      --muted: #7a7090;
+      --green: #2ab878;
+      --green-dark: #177a49;
+      --tile: #1c1833;
+      --tile-large: #13102a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Barlow Condensed', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 18px 16px 50px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+      background-size: 44px 44px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .game-wrap { width: 100%; max-width: 560px; position: relative; z-index: 1; }
+
+    /* ─── HEADER ─── */
+    .header { text-align: center; margin-bottom: 16px; }
+    .show-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(2.1rem, 9vw, 3.4rem);
+      letter-spacing: 0.13em; line-height: 1; color: var(--white);
+    }
+    .show-title .r { color: var(--red); }
+    .show-title .g { color: var(--gold); }
+    .header-rule { display: flex; align-items: center; gap: 10px; margin: 7px 0 4px; }
+    .rule-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--red), var(--gold), var(--red), transparent); }
+    .rule-diamond { width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg); flex-shrink: 0; }
+    .subtitle { font-size: .72rem; letter-spacing: .3em; color: var(--muted); text-transform: uppercase; }
+    .subtitle .rip { color: rgba(200,48,46,.7); font-style: italic; }
+
+    /* ─── SCORE BAR ─── */
+    .score-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(0,0,0,.28); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 16px; margin-bottom: 12px;
+      font-size: .82rem; letter-spacing: .12em; color: var(--muted);
+    }
+    .sc-item { display: flex; align-items: center; gap: 5px; }
+    .sc-item strong { color: var(--white); font-size: 1rem; }
+    .sc-item.wins strong { color: var(--green); }
+    .sc-item.best strong { color: var(--gold); }
+
+    /* ─── TIMER OPTIONS ─── */
+    .timer-options-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .t-opt-label { font-size: .72rem; letter-spacing: .35em; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
+    .t-opts { display: flex; gap: 6px; }
+    .t-opt {
+      padding: 5px 14px;
+      background: #111028; border: 1px solid var(--border);
+      border-radius: 20px; color: var(--muted);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .85rem; font-weight: 700; letter-spacing: .1em;
+      cursor: pointer; transition: all .15s;
+    }
+    .t-opt:hover  { border-color: var(--gold); color: var(--white); }
+    .t-opt.active { background: var(--gold); border-color: var(--gold); color: #1a0f00; }
+
+    /* ─── TIMER BAR ─── */
+    .timer-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .timer-track { flex: 1; height: 7px; background: rgba(255,255,255,.07); border-radius: 4px; overflow: hidden; }
+    .timer-fill { height: 100%; border-radius: 4px; transition: width .9s linear; background: var(--green); }
+    .timer-fill.warn   { background: var(--gold); }
+    .timer-fill.danger { background: var(--red); animation: blink .45s ease infinite alternate; }
+    @keyframes blink { to { opacity: .45; } }
+    .timer-val {
+      font-family: 'Inconsolata', monospace; font-weight: 700; font-size: 1.25rem;
+      min-width: 48px; text-align: right; color: var(--gold); transition: color .3s;
+    }
+    .timer-val.danger { color: var(--red); }
+
+    /* ─── TARGET ─── */
+    .target-zone { text-align: center; margin-bottom: 22px; }
+    .section-label { font-size: .71rem; letter-spacing: .42em; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+    .target-box {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 172px; height: 98px;
+      background: var(--red); border-radius: 14px;
+      font-family: 'Bebas Neue', cursive; font-size: 5.2rem; letter-spacing: .04em; color: #fff;
+      box-shadow: 0 8px 0 var(--red-dark), 0 14px 32px rgba(200,48,46,.35), inset 0 1px 0 rgba(255,255,255,.15);
+      transition: background .4s, box-shadow .4s;
+    }
+    .target-box.matched {
+      background: var(--green);
+      box-shadow: 0 8px 0 var(--green-dark), 0 0 60px rgba(42,184,120,.55);
+      animation: glow-pulse .9s ease-in-out infinite;
+    }
+    .target-box.near1 { background: #b8860b; box-shadow: 0 8px 0 #7a5800, 0 0 40px rgba(184,134,11,.4); }
+    .target-box.near2 { background: #c06010; box-shadow: 0 8px 0 #8a3f00, 0 0 35px rgba(192,96,16,.35); }
+    .target-box.near3 { background: #a03820; box-shadow: 0 8px 0 #6a1e0c, 0 0 30px rgba(160,56,32,.3); }
+    @keyframes glow-pulse {
+      0%,100% { box-shadow: 0 8px 0 var(--green-dark), 0 0 40px rgba(42,184,120,.4); }
+      50%      { box-shadow: 0 8px 0 var(--green-dark), 0 0 85px rgba(42,184,120,.9); }
+    }
+
+    /* ─── NUMBERS ─── */
+    .nums-zone { margin-bottom: 20px; }
+    .nums-row { display: flex; justify-content: center; gap: 9px; flex-wrap: wrap; }
+    .num-btn {
+      width: 74px; height: 74px;
+      background: var(--tile); border: 2px solid var(--border); border-radius: 10px;
+      color: var(--white); font-family: 'Bebas Neue', cursive; font-size: 2.1rem;
+      cursor: pointer; position: relative; top: 0;
+      transition: top .1s, box-shadow .1s, background .13s, border-color .13s;
+      box-shadow: 0 5px 0 #060510, 0 7px 14px rgba(0,0,0,.45);
+      display: flex; align-items: center; justify-content: center;
+      user-select: none; -webkit-tap-highlight-color: transparent;
+      line-height: 1; padding: 4px;
+    }
+    .num-btn.large  { background: var(--tile-large); border-color: #2a1a55; }
+    .num-btn.float  { border-color: #1a4040; background: #0e2020; }
+    .num-btn:hover:not(:disabled):not(.selected) {
+      background: #25204a; border-color: var(--gold); top: -2px;
+      box-shadow: 0 7px 0 #060510, 0 10px 20px rgba(0,0,0,.45);
+    }
+    .num-btn.selected {
+      background: var(--gold); color: #1a0f00; border-color: var(--gold); top: -3px;
+      box-shadow: 0 8px 0 var(--gold-dark), 0 0 24px rgba(242,183,49,.5);
+    }
+    .num-btn:active:not(:disabled) { top: 3px; box-shadow: 0 1px 0 #060510; }
+    .num-btn:disabled { opacity: .22; cursor: default; }
+
+    /* ─── OPERATORS ─── */
+    .ops-zone { margin-bottom: 18px; }
+    .ops-row  { display: flex; justify-content: center; gap: 10px; }
+    .op-btn {
+      width: 70px; height: 60px;
+      background: #110f26; border: 2px solid #221a50; border-radius: 8px;
+      color: var(--gold); font-family: 'Bebas Neue', cursive; font-size: 1.75rem;
+      cursor: pointer; transition: all .12s; box-shadow: 0 4px 0 #06050f;
+      display: flex; align-items: center; justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .op-btn:hover    { background: #1d1844; border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 6px 0 #06050f; }
+    .op-btn.selected { background: var(--gold); color: #1a0f00; border-color: var(--gold); box-shadow: 0 5px 0 var(--gold-dark); }
+
+    /* ─── FORMULA ─── */
+    .formula-zone { margin-bottom: 18px; }
+    .formula-display {
+      background: rgba(0,0,0,.3); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px 20px; min-height: 54px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inconsolata', monospace; font-size: 1.45rem; font-weight: 600;
+      color: var(--gold); letter-spacing: .05em; transition: border-color .3s;
+    }
+    .formula-display.err-flash { border-color: var(--red); }
+    .dim    { color: rgba(255,255,255,.18); }
+    .hi     { color: var(--gold); }
+    .op-hi  { color: var(--teal); }
+    .err-txt{ color: var(--red); }
+    .step-hint {
+      text-align: center; font-size: .77rem; letter-spacing: .22em;
+      color: rgba(255,255,255,.26); text-transform: uppercase; margin-top: 6px; transition: color .3s;
+    }
+    .step-hint.flash { color: var(--gold); }
+
+    /* ─── HISTORY ─── */
+    .history-zone { margin-bottom: 18px; }
+    .history-scroll {
+      background: rgba(0,0,0,.25); border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; min-height: 72px; max-height: 144px; overflow-y: auto;
+    }
+    .history-scroll::-webkit-scrollbar { width: 3px; }
+    .history-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .hist-empty { color: rgba(255,255,255,.17); font-style: italic; font-size: .88rem; text-align: center; padding: 10px 0; }
+    .hist-line {
+      font-family: 'Inconsolata', monospace; font-size: .96rem; color: var(--teal);
+      padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,.04); display: flex; gap: 8px;
+    }
+    .hist-line:last-child { border-bottom: none; }
+    .hist-arr { color: var(--amber); opacity: .75; }
+
+    /* ─── CONTROLS ─── */
+    .controls { display: flex; gap: 8px; }
+    .ctrl-btn {
+      flex: 1; padding: 13px 8px; border: none; border-radius: 8px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .9rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      cursor: pointer; transition: filter .15s, transform .1s;
+    }
+    .ctrl-btn:hover  { filter: brightness(1.14); }
+    .ctrl-btn:active { transform: scale(.96); }
+    .btn-undo   { background: #242040; color: var(--white); border: 1px solid var(--border); }
+    .btn-finish { background: var(--green); color: #fff; }
+    .btn-new    { background: var(--red);   color: #fff; }
+
+    /* ─── OVERLAY ─── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.88);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; backdrop-filter: blur(6px);
+      animation: fadeIn .25s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .result-card {
+      background: var(--panel); border: 2px solid var(--border); border-radius: 18px;
+      padding: 34px 40px; text-align: center; max-width: 430px; width: 90%;
+      animation: popIn .3s cubic-bezier(.175,.885,.32,1.275);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .result-card::-webkit-scrollbar { width: 3px; }
+    .result-card::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    @keyframes popIn {
+      from { transform: scale(.78) translateY(24px); opacity: 0; }
+      to   { transform: scale(1)   translateY(0);    opacity: 1; }
+    }
+
+    .res-emoji { font-size: 3.4rem; margin-bottom: 10px; }
+    .res-title { font-family: 'Bebas Neue', cursive; font-size: 2.8rem; letter-spacing: .08em; margin-bottom: 10px; }
+    .res-title.win    { color: var(--gold); }
+    .res-title.near1  { color: #f0c020; }
+    .res-title.near2  { color: var(--amber); }
+    .res-title.near3  { color: #d05830; }
+    .res-title.lose   { color: var(--red); }
+    .res-body { font-size: 1.05rem; color: rgba(240,236,224,.68); line-height: 1.75; margin-bottom: 20px; }
+    .res-body strong { color: var(--white); }
+    .res-badge {
+      display: inline-block; padding: 3px 14px; border-radius: 20px;
+      font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: .1em;
+      margin-top: 4px;
+    }
+    .badge-1 { background: rgba(240,192,32,.15); color: #f0c020; border: 1px solid #f0c020; }
+    .badge-2 { background: rgba(224,112,48,.15); color: var(--amber); border: 1px solid var(--amber); }
+    .badge-3 { background: rgba(208,88,48,.15);  color: #d05830; border: 1px solid #d05830; }
+
+    .res-divider { width: 60px; height: 1px; background: var(--border); margin: 16px auto; }
+
+    .res-btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .res-play-btn {
+      background: var(--red); color: white; border: none;
+      padding: 13px 32px; border-radius: 8px;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 1rem; letter-spacing: .15em; text-transform: uppercase;
+      cursor: pointer; transition: filter .15s;
+    }
+    .res-play-btn:hover { filter: brightness(1.15); }
+    .res-sol-btn {
+      background: transparent; color: var(--teal); border: 1px solid var(--teal);
+      padding: 13px 24px; border-radius: 8px;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 1rem; letter-spacing: .15em; text-transform: uppercase;
+      cursor: pointer; transition: all .15s;
+    }
+    .res-sol-btn:hover     { background: rgba(62,214,192,.1); }
+    .res-sol-btn:disabled  { opacity: .5; cursor: default; }
+
+    /* Solution reveal */
+    .solution-reveal {
+      margin-top: 18px; text-align: left;
+      background: rgba(0,0,0,.3); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px 16px; animation: fadeIn .3s ease;
+    }
+    .sol-label { font-size: .7rem; letter-spacing: .35em; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+    .sol-line {
+      font-family: 'Inconsolata', monospace; font-size: .94rem; color: var(--teal);
+      padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,.04); display: flex; gap: 8px;
+    }
+    .sol-line:last-child { border-bottom: none; }
+    .sol-arr  { color: var(--amber); opacity: .75; }
+    .sol-note { font-size: .82rem; color: var(--muted); margin-top: 8px; font-style: italic; }
+
+    /* ─── CONFETTI ─── */
+    .confetti-piece {
+      position: fixed; animation: cfall linear forwards; z-index: 300; pointer-events: none;
+    }
+    @keyframes cfall {
+      0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+      85%  { opacity: 1; }
+      100% { transform: translateY(105vh) rotate(640deg); opacity: 0; }
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+<div class="game-wrap">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="show-title">
+      BİR <span class="r">KELİME</span> BİR <span class="g">İŞLEM</span>
+    </div>
+    <div class="header-rule">
+      <div class="rule-line"></div>
+      <div class="rule-diamond"></div>
+      <div class="rule-line"></div>
+    </div>
+    <div class="subtitle">Number Puzzle &nbsp;·&nbsp; <span class="rip">RIP Ali Doğanaksoy</span></div>
+  </header>
+
+  <!-- SCORE BAR -->
+  <div class="score-bar">
+    <div class="sc-item wins">🏆 Wins: <strong id="scoreWins">0</strong></div>
+    <div class="sc-item">📋 Played: <strong id="scorePlayed">0</strong></div>
+    <div class="sc-item best">🎯 Best Diff: <strong id="scoreBest">—</strong></div>
+  </div>
+
+  <!-- TIMER OPTIONS -->
+  <div class="timer-options-row">
+    <div class="t-opt-label">⏱ Timer</div>
+    <div class="t-opts">
+      <button class="t-opt"        onclick="setTimerOption(60)"  id="topt-60">1:00</button>
+      <button class="t-opt active" onclick="setTimerOption(120)" id="topt-120">2:00</button>
+      <button class="t-opt"        onclick="setTimerOption(0)"   id="topt-0">∞</button>
+    </div>
+  </div>
+
+  <!-- TIMER BAR -->
+  <div class="timer-row">
+    <div class="timer-track">
+      <div class="timer-fill" id="timerFill" style="width:100%"></div>
+    </div>
+    <div class="timer-val" id="timerVal">2:00</div>
+  </div>
+
+  <!-- TARGET -->
+  <div class="target-zone">
+    <div class="section-label">Target Number</div>
+    <div class="target-box" id="targetBox">—</div>
+  </div>
+
+  <!-- NUMBERS -->
+  <div class="nums-zone">
+    <div class="section-label">Your Numbers</div>
+    <div class="nums-row" id="numsRow"></div>
+  </div>
+
+  <!-- OPERATORS -->
+  <div class="ops-zone">
+    <div class="section-label">Select Operation</div>
+    <div class="ops-row">
+      <button class="op-btn" id="op-plus"  onclick="selectOp('+')">+</button>
+      <button class="op-btn" id="op-minus" onclick="selectOp('-')">−</button>
+      <button class="op-btn" id="op-times" onclick="selectOp('×')">×</button>
+      <button class="op-btn" id="op-div"   onclick="selectOp('÷')">÷</button>
+    </div>
+  </div>
+
+  <!-- FORMULA DISPLAY -->
+  <div class="formula-zone">
+    <div class="formula-display" id="formulaDisplay">
+      <span class="dim">Select a number to begin...</span>
+    </div>
+    <div class="step-hint" id="stepHint">Step 1 — Select a number</div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-zone">
+    <div class="section-label">Operations Log</div>
+    <div class="history-scroll" id="historyScroll">
+      <div class="hist-empty">No operations yet...</div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="ctrl-btn btn-undo"   onclick="undoLast()">↩ Undo</button>
+    <button class="ctrl-btn btn-finish" onclick="finishEarly()">✓ Finish</button>
+    <button class="ctrl-btn btn-new"    onclick="newGame()">↺ New Game</button>
+  </div>
+
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="overlay hidden" id="overlay">
+  <div class="result-card" id="resultCard">
+    <div class="res-emoji" id="resEmoji"></div>
+    <div class="res-title" id="resTitle"></div>
+    <div class="res-body"  id="resBody"></div>
+    <div class="res-divider"></div>
+    <div class="res-btn-row">
+      <button class="res-play-btn" onclick="newGame()">↺ New Game</button>
+      <button class="res-sol-btn"  id="solBtn" onclick="showSolution()">💡 Show Solution</button>
+    </div>
+    <div id="solutionReveal"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+const BIG_POOL  = [10, 25, 50, 75, 100];
+const OP_BTN_ID = { '+':'op-plus', '-':'op-minus', '×':'op-times', '÷':'op-div' };
+const OP_DISP   = { '+':'+', '-':'−', '×':'×', '÷':'÷' };
+
+let target, numbers, initialNumbers, selIdx, selOp, histStack;
+let timeLeft, totalTime, clockId, playing;
+let chosenTimerSec = 120;
+let scoreWins = 0, scorePlayed = 0, scoreBestDiff = Infinity;
+
+// ══════════════════════════════════════════════
+//  NUMBER FORMATTING
+// ══════════════════════════════════════════════
+function fmt(n) {
+  // Snap to integer if within floating-point noise
+  if (Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
+  // Otherwise show up to 4 decimal places, stripped of trailing zeros
+  return parseFloat(n.toFixed(4)).toString();
+}
+
+function tileSize(str) {
+  if (str.length <= 3) return '2.0rem';
+  if (str.length <= 5) return '1.4rem';
+  return '1.05rem';
+}
+
+function isNearlyEqual(a, b) { return Math.abs(a - b) < 1e-9; }
+
+// ══════════════════════════════════════════════
+//  TIMER OPTION
+// ══════════════════════════════════════════════
+function setTimerOption(secs) {
+  chosenTimerSec = secs;
+  document.querySelectorAll('.t-opt').forEach(b => b.classList.remove('active'));
+  document.getElementById('topt-' + secs).classList.add('active');
+  if (!playing) {
+    timeLeft = totalTime = secs;
+    updateTimerDisplay();
+  }
+}
+
+// ══════════════════════════════════════════════
+//  NEW GAME
+// ══════════════════════════════════════════════
+function newGame() {
+  document.getElementById('overlay').classList.add('hidden');
+  clearInterval(clockId);
+
+  target = Math.floor(Math.random() * 900) + 100;
+
+  const pool = [];
+  for (let i = 0; i < 5; i++) pool.push(Math.floor(Math.random() * 9) + 1);
+  pool.push(BIG_POOL[Math.floor(Math.random() * BIG_POOL.length)]);
+
+  numbers = pool.map((v, i) => ({
+    id: i, value: v, active: true,
+    isLarge: BIG_POOL.includes(v), isFloat: false
+  }));
+  initialNumbers = pool.slice();
+
+  selIdx = null; selOp = null; histStack = [];
+  playing = true;
+  timeLeft = totalTime = chosenTimerSec;
+
+  const tb = document.getElementById('targetBox');
+  tb.textContent = target;
+  tb.className = 'target-box';
+
+  renderNums(); renderHistory(); updateFormula(); updateTimerDisplay();
+  if (chosenTimerSec > 0) clockId = setInterval(tick, 1000);
+}
+
+// ══════════════════════════════════════════════
+//  TIMER
+// ══════════════════════════════════════════════
+function tick() {
+  if (!playing) return;
+  timeLeft--;
+  updateTimerDisplay();
+  if (timeLeft <= 0) { clearInterval(clockId); playing = false; endGame(); }
+}
+
+function updateTimerDisplay() {
+  const fill = document.getElementById('timerFill');
+  const val  = document.getElementById('timerVal');
+
+  if (totalTime === 0) {
+    fill.style.width = '100%'; fill.className = 'timer-fill';
+    val.textContent = '∞'; val.className = 'timer-val';
+    return;
+  }
+  const pct = (timeLeft / totalTime) * 100;
+  fill.style.width = pct + '%';
+  val.textContent  = formatTime(timeLeft);
+  const isDanger = timeLeft <= 20, isWarn = timeLeft <= 40 && !isDanger;
+  fill.className = 'timer-fill' + (isDanger ? ' danger' : isWarn ? ' warn' : '');
+  val.className  = 'timer-val'  + (isDanger ? ' danger' : '');
+}
+
+function formatTime(s) {
+  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+}
+
+// ══════════════════════════════════════════════
+//  RENDER NUMBERS
+// ══════════════════════════════════════════════
+function renderNums() {
+  const row = document.getElementById('numsRow');
+  row.innerHTML = '';
+  numbers.forEach((n, idx) => {
+    if (!n.active) return;
+    const str = fmt(n.value);
+    const btn = document.createElement('button');
+    let cls = 'num-btn';
+    if (n.isFloat)       cls += ' float';
+    else if (n.isLarge)  cls += ' large';
+    if (idx === selIdx)  cls += ' selected';
+    btn.className   = cls;
+    btn.style.fontSize = tileSize(str);
+    btn.textContent = str;
+    if (!playing) btn.disabled = true;
+    btn.onclick = () => pickNum(idx);
+    row.appendChild(btn);
+  });
+}
+
+// ══════════════════════════════════════════════
+//  PICK NUMBER
+// ══════════════════════════════════════════════
+function pickNum(idx) {
+  if (!playing) return;
+  if (selIdx === null) {
+    selIdx = idx;
+  } else if (selIdx === idx) {
+    selIdx = null; selOp = null; clearOpHighlights();
+  } else if (selOp !== null) {
+    doOperation(selIdx, idx, selOp);
+    return;
+  } else {
+    selIdx = idx;
+  }
+  renderNums(); updateFormula();
+}
+
+// ══════════════════════════════════════════════
+//  SELECT OPERATOR
+// ══════════════════════════════════════════════
+function selectOp(op) {
+  if (!playing) return;
+  if (selIdx === null) { flashHint('← Select a number first!'); return; }
+  selOp = op;
+  clearOpHighlights();
+  document.getElementById(OP_BTN_ID[op]).classList.add('selected');
+  updateFormula();
+}
+
+function clearOpHighlights() {
+  Object.values(OP_BTN_ID).forEach(id => document.getElementById(id).classList.remove('selected'));
+}
+
+// ══════════════════════════════════════════════
+//  EXECUTE OPERATION
+// ══════════════════════════════════════════════
+function doOperation(i1, i2, op) {
+  const a = numbers[i1].value, b = numbers[i2].value;
+  let result;
+
+  if (op === '+') {
+    result = a + b;
+  } else if (op === '-') {
+    if (isNearlyEqual(a, b)) { flashError('Result cannot be zero!'); clearSel(); return; }
+    if (a < b)               { flashError('Result cannot be negative!'); clearSel(); return; }
+    result = a - b;
+  } else if (op === '×') {
+    result = a * b;
+  } else if (op === '÷') {
+    if (Math.abs(b) < 1e-12) { flashError('Cannot divide by zero!'); clearSel(); return; }
+    result = a / b;
+    if (result < 1e-9)       { flashError('Result cannot be zero or negative!'); clearSel(); return; }
+  }
+
+  const aStr = fmt(a), bStr = fmt(b), rStr = fmt(result);
+  histStack.push({
+    snap: JSON.parse(JSON.stringify(numbers)),
+    expr: `${aStr} ${OP_DISP[op]} ${bStr} = ${rStr}`
+  });
+
+  const resultIsFloat = !isNearlyEqual(result, Math.round(result));
+  numbers[i1].value   = result;
+  numbers[i1].isLarge = false;
+  numbers[i1].isFloat = resultIsFloat;
+  numbers[i2].active  = false;
+
+  clearSel(); renderNums(); renderHistory();
+
+  if (isNearlyEqual(result, target)) {
+    clearInterval(clockId);
+    playing = false;
+    document.getElementById('targetBox').classList.add('matched');
+    spawnConfetti();
+    setTimeout(endGame, 750);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  CLEAR SELECTION
+// ══════════════════════════════════════════════
+function clearSel() {
+  selIdx = null; selOp = null;
+  clearOpHighlights(); updateFormula();
+}
+
+// ══════════════════════════════════════════════
+//  UNDO
+// ══════════════════════════════════════════════
+function undoLast() {
+  if (!playing || !histStack.length) return;
+  numbers = histStack.pop().snap;
+  clearSel(); renderNums(); renderHistory();
+}
+
+// ══════════════════════════════════════════════
+//  FINISH EARLY
+// ══════════════════════════════════════════════
+function finishEarly() {
+  if (!playing) return;
+  clearInterval(clockId);
+  playing = false;
+  endGame();
+}
+
+// ══════════════════════════════════════════════
+//  END GAME
+// ══════════════════════════════════════════════
+function endGame() {
+  const closest = findClosest();
+  const diff    = Math.round(Math.abs(closest - target));   // integer diff (target is always int)
+
+  scorePlayed++;
+  if (diff === 0) scoreWins++;
+  if (diff < scoreBestDiff) scoreBestDiff = diff;
+  updateScoreBar();
+
+  const emoji = document.getElementById('resEmoji');
+  const title = document.getElementById('resTitle');
+  const body  = document.getElementById('resBody');
+  document.getElementById('solutionReveal').innerHTML = '';
+  const solBtn = document.getElementById('solBtn');
+  solBtn.disabled = false; solBtn.textContent = '💡 Show Solution';
+
+  const timedOut = totalTime > 0 && timeLeft <= 0;
+
+  if (diff === 0) {
+    document.getElementById('targetBox').classList.add('matched');
+    emoji.textContent = '🎉';
+    title.textContent = 'PERFECT MATCH!';
+    title.className   = 'res-title win';
+    body.innerHTML    =
+      `You reached <strong>${target}</strong> exactly!<br>` +
+      `Operations used: <strong>${histStack.length}</strong>` +
+      (totalTime > 0 && timeLeft > 0 ? `&ensp;·&ensp;Time left: <strong>${formatTime(timeLeft)}</strong>` : '');
+  } else if (diff <= 3) {
+    const tb = document.getElementById('targetBox');
+    tb.className = `target-box near${diff}`;
+    const medals  = ['', '🥇', '🥈', '🥉'];
+    const classes = ['', 'near1', 'near2', 'near3'];
+    const labels  = ['', '1 OFF!', '2 OFF!', '3 OFF!'];
+    const badges  = ['', 'badge-1', 'badge-2', 'badge-3'];
+    const points  = ['', '7 pts', '5 pts', '3 pts'];
+    emoji.textContent = medals[diff];
+    title.textContent = labels[diff];
+    title.className   = `res-title ${classes[diff]}`;
+    body.innerHTML    =
+      `Target: <strong>${target}</strong><br>` +
+      `You reached: <strong>${fmt(closest)}</strong><br>` +
+      `<span class="res-badge ${badges[diff]}">${labels[diff]} — ${points[diff]}</span>`;
+  } else {
+    emoji.textContent = timedOut ? '⏰' : '😔';
+    title.textContent = timedOut ? "TIME'S UP!" : 'GAME OVER';
+    title.className   = 'res-title lose';
+    body.innerHTML    =
+      `Target: <strong>${target}</strong><br>` +
+      `Closest you reached: <strong>${fmt(closest)}</strong><br>` +
+      `Difference: <strong>${diff}</strong>`;
+  }
+
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
+function findClosest() {
+  let best = Infinity, val = null;
+  numbers.forEach(n => {
+    if (n.active) {
+      const d = Math.abs(n.value - target);
+      if (d < best) { best = d; val = n.value; }
+    }
+  });
+  return val;
+}
+
+// ══════════════════════════════════════════════
+//  FORMULA DISPLAY
+// ══════════════════════════════════════════════
+function updateFormula() {
+  const disp = document.getElementById('formulaDisplay');
+  const hint = document.getElementById('stepHint');
+  if (selIdx === null) {
+    disp.innerHTML   = '<span class="dim">Select a number to begin...</span>';
+    hint.textContent = 'Step 1 — Select a number';
+  } else if (!selOp) {
+    const v = fmt(numbers[selIdx].value);
+    disp.innerHTML   = `<span class="hi">${v}</span>&ensp;<span class="dim">?</span>&ensp;<span class="dim">_</span>`;
+    hint.textContent = 'Step 2 — Select an operation (+ − × ÷)';
+  } else {
+    const v = fmt(numbers[selIdx].value);
+    disp.innerHTML   = `<span class="hi">${v}</span>&ensp;<span class="op-hi">${OP_DISP[selOp]}</span>&ensp;<span class="dim">_</span>`;
+    hint.textContent = 'Step 3 — Select the second number';
+  }
+}
+
+// ══════════════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════════════
+function renderHistory() {
+  const scroll = document.getElementById('historyScroll');
+  if (!histStack.length) {
+    scroll.innerHTML = '<div class="hist-empty">No operations yet...</div>';
+    return;
+  }
+  scroll.innerHTML = histStack.map(h =>
+    `<div class="hist-line"><span class="hist-arr">➔</span>${h.expr}</div>`
+  ).join('');
+  scroll.scrollTop = scroll.scrollHeight;
+}
+
+// ══════════════════════════════════════════════
+//  SCORE BAR
+// ══════════════════════════════════════════════
+function updateScoreBar() {
+  document.getElementById('scoreWins').textContent   = scoreWins;
+  document.getElementById('scorePlayed').textContent = scorePlayed;
+  document.getElementById('scoreBest').textContent   = scoreBestDiff === Infinity ? '—' : scoreBestDiff;
+}
+
+// ══════════════════════════════════════════════
+//  FLASH HELPERS
+// ══════════════════════════════════════════════
+function flashError(msg) {
+  const d = document.getElementById('formulaDisplay');
+  d.innerHTML = `<span class="err-txt">⚠ ${msg}</span>`;
+  d.classList.add('err-flash');
+  setTimeout(() => { d.classList.remove('err-flash'); updateFormula(); }, 1700);
+}
+function flashHint(msg) {
+  const h = document.getElementById('stepHint');
+  const prev = h.textContent;
+  h.textContent = msg; h.classList.add('flash');
+  setTimeout(() => { h.textContent = prev; h.classList.remove('flash'); }, 1500);
+}
+
+// ══════════════════════════════════════════════
+//  ★ SOLVER  (backtracking, allows non-integer division)
+// ══════════════════════════════════════════════
+function solveNumbers(nums, tgt) {
+  let bestDiff  = Infinity;
+  let bestValue = null;
+  let bestSteps = [];
+
+  function recurse(pool, steps) {
+    for (const v of pool) {
+      const d = Math.abs(v - tgt);
+      if (d < bestDiff) { bestDiff = d; bestValue = v; bestSteps = steps.slice(); }
+    }
+    if (bestDiff < 1e-9 || pool.length < 2) return;
+
+    for (let i = 0; i < pool.length; i++) {
+      for (let j = i + 1; j < pool.length; j++) {
+        if (bestDiff < 1e-9) return;
+        const a = pool[i], b = pool[j];
+        const rest = pool.filter((_, k) => k !== i && k !== j);
+        const ops  = [];
+
+        ops.push([a + b, `${fmt(a)} + ${fmt(b)} = ${fmt(a+b)}`]);
+        ops.push([a * b, `${fmt(a)} × ${fmt(b)} = ${fmt(a*b)}`]);
+        if (a - b > 1e-9) ops.push([a - b, `${fmt(a)} − ${fmt(b)} = ${fmt(a-b)}`]);
+        if (b - a > 1e-9) ops.push([b - a, `${fmt(b)} − ${fmt(a)} = ${fmt(b-a)}`]);
+        if (Math.abs(b) > 1e-12 && a/b > 1e-9) ops.push([a/b, `${fmt(a)} ÷ ${fmt(b)} = ${fmt(a/b)}`]);
+        if (Math.abs(a) > 1e-12 && b/a > 1e-9) ops.push([b/a, `${fmt(b)} ÷ ${fmt(a)} = ${fmt(b/a)}`]);
+
+        for (const [res, step] of ops) {
+          if (bestDiff < 1e-9) return;
+          recurse([...rest, res], [...steps, step]);
+        }
+      }
+    }
+  }
+
+  recurse(nums.slice(), []);
+  return { diff: bestDiff, value: bestValue, steps: bestSteps };
+}
+
+function showSolution() {
+  const btn = document.getElementById('solBtn');
+  btn.disabled = true; btn.textContent = '⏳ Calculating...';
+  setTimeout(() => {
+    const sol    = solveNumbers(initialNumbers, target);
+    const reveal = document.getElementById('solutionReveal');
+    let html     = '<div class="solution-reveal">';
+    html += '<div class="sol-label">💡 One Possible Solution</div>';
+    if (!sol.steps.length) {
+      html += `<div class="sol-note" style="color:var(--amber)">The target ${target} cannot be reached — showing closest approach.</div>`;
+    }
+    html += sol.steps.map(s =>
+      `<div class="sol-line"><span class="sol-arr">➔</span>${s}</div>`
+    ).join('');
+    if (sol.diff > 1e-9) {
+      html += `<div class="sol-note">Best achievable: <strong style="color:var(--white)">${fmt(sol.value)}</strong> (diff: ${fmt(sol.diff)})</div>`;
+    }
+    html += `<div class="sol-note" style="margin-top:10px;color:var(--muted)">Starting numbers: ${initialNumbers.join('  ·  ')}</div>`;
+    html += '</div>';
+    reveal.innerHTML = html;
+    btn.textContent  = '✓ Solution Shown';
+    document.getElementById('resultCard').scrollTop = 9999;
+  }, 50);
+}
+
+// ══════════════════════════════════════════════
+//  CONFETTI
+// ══════════════════════════════════════════════
+function spawnConfetti() {
+  const C = ['#f2b731','#c8302e','#3ed6c0','#f0ece0','#e07030','#2ab878'];
+  for (let i = 0; i < 65; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const size = 6 + Math.random() * 9;
+    el.style.cssText = `left:${Math.random()*100}vw;top:-12px;width:${size}px;height:${size}px;` +
+      `background:${C[Math.floor(Math.random()*C.length)]};` +
+      `border-radius:${Math.random()>.5?'50%':'2px'};` +
+      `animation-duration:${1.8+Math.random()*1.4}s;animation-delay:${Math.random()*1.1}s;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  START
+// ══════════════════════════════════════════════
+newGame();
+</script>
+</body>
+</html>
